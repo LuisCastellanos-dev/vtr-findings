@@ -1,0 +1,530 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vtr-findings-001/v0.1.0",
+  "$comment": "Machine-readable implementation of VTR-FINDINGS-001 v0.1.0. Derived from the normative specification; the .md document takes precedence in cases of conflict. Schema validates the contract; evidence validates the claim.",
+
+  "type": "array",
+  "title": "VTR Findings — OT/ICS Security Finding Contract",
+  "description": "A collection of OT/ICS security findings conforming to VTR-FINDINGS-001 v0.1.0.",
+  "items": {
+    "$ref": "#/$defs/finding"
+  },
+
+  "$defs": {
+
+    "finding": {
+      "type": "object",
+      "description": "A single VTR finding. Enforces I-001 through I-009 via conditional constraints.",
+      "required": [
+        "id",
+        "claim",
+        "epistemic_state",
+        "validation_state",
+        "audit_disposition",
+        "confirmation_criteria",
+        "falsification_criteria",
+        "evidence",
+        "trace"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^VTR-[A-Z0-9]+-[0-9]{3,}$",
+          "description": "Stable finding identifier. Format: VTR-<DOMAIN>-<NUMBER>. Does not change across lifecycle transitions."
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Short human-readable label for this finding."
+        },
+        "claim": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The specific security claim this finding asserts. Should be falsifiable as stated."
+        },
+        "epistemic_state": {
+          "$ref": "#/$defs/epistemic_state"
+        },
+        "validation_state": {
+          "$ref": "#/$defs/validation_state"
+        },
+        "audit_disposition": {
+          "$ref": "#/$defs/audit_disposition"
+        },
+        "epistemic_history": {
+          "$comment": "Optional in v0.1.0. Deferred to OI-002 for normative definition. Preserves epistemological trajectory across lifecycle transitions.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["state", "timestamp"],
+            "properties": {
+              "state": { "$ref": "#/$defs/epistemic_state" },
+              "timestamp": { "type": "string", "format": "date-time" },
+              "basis": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Evidence or refutation item IDs supporting this transition."
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "conditions": {
+          "$comment": "Required when audit_disposition=confirmed (I-009). Recommended for all findings.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/condition" }
+        },
+        "trace": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/trace_step" },
+          "description": "OT/ICS topology-based trace. Replaces file:line model with asset→interface→protocol→function→state_transition→boundary→observed_effect."
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/evidence_item" }
+        },
+        "confirmation_criteria": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Explicit criteria that must be satisfied for this finding to reach E3 CONFIRMED. Mandatory structural field."
+        },
+        "falsification_criteria": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Explicit conditions under which this claim would be considered false. Mandatory structural field. A finding without falsification_criteria is an unfalsifiable assertion."
+        },
+        "confirmation_basis": {
+          "$comment": "Required when audit_disposition=confirmed (I-003).",
+          "$ref": "#/$defs/confirmation_basis"
+        },
+        "blockers": {
+          "$comment": "Required when audit_disposition=needs_validation (I-008).",
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Specific blockers preventing validation completion."
+        },
+        "validation_plan": {
+          "$comment": "Required when audit_disposition=needs_validation (I-008).",
+          "$ref": "#/$defs/validation_plan"
+        },
+        "refutation": {
+          "$comment": "Required when epistemic_state=refuted. Preserves falsification record.",
+          "$ref": "#/$defs/refutation"
+        }
+      },
+
+      "allOf": [
+        {
+          "$comment": "I-001: audit_disposition=confirmed requires epistemic_state=confirmed",
+          "if": {
+            "properties": { "audit_disposition": { "const": "confirmed" } },
+            "required": ["audit_disposition"]
+          },
+          "then": {
+            "properties": { "epistemic_state": { "const": "confirmed" } },
+            "required": ["epistemic_state"]
+          }
+        },
+        {
+          "$comment": "I-002: audit_disposition=confirmed requires validation_state in {validated, independently_reproduced}",
+          "if": {
+            "properties": { "audit_disposition": { "const": "confirmed" } },
+            "required": ["audit_disposition"]
+          },
+          "then": {
+            "properties": {
+              "validation_state": {
+                "enum": ["validated", "independently_reproduced"]
+              }
+            },
+            "required": ["validation_state"]
+          }
+        },
+        {
+          "$comment": "I-003: audit_disposition=confirmed requires confirmation_basis",
+          "if": {
+            "properties": { "audit_disposition": { "const": "confirmed" } },
+            "required": ["audit_disposition"]
+          },
+          "then": {
+            "required": ["confirmation_basis"]
+          }
+        },
+        {
+          "$comment": "I-004: audit_disposition=rejected requires epistemic_state=refuted",
+          "if": {
+            "properties": { "audit_disposition": { "const": "rejected" } },
+            "required": ["audit_disposition"]
+          },
+          "then": {
+            "properties": { "epistemic_state": { "const": "refuted" } },
+            "required": ["epistemic_state"]
+          }
+        },
+        {
+          "$comment": "I-005: validation_state=falsified requires epistemic_state=refuted",
+          "if": {
+            "properties": { "validation_state": { "const": "falsified" } },
+            "required": ["validation_state"]
+          },
+          "then": {
+            "properties": { "epistemic_state": { "const": "refuted" } },
+            "required": ["epistemic_state"]
+          }
+        },
+        {
+          "$comment": "I-006: validation_state=blocked forbids audit_disposition=confirmed",
+          "if": {
+            "properties": { "validation_state": { "const": "blocked" } },
+            "required": ["validation_state"]
+          },
+          "then": {
+            "properties": {
+              "audit_disposition": {
+                "not": { "const": "confirmed" }
+              }
+            }
+          }
+        },
+        {
+          "$comment": "I-007 (non-implication, documented): validation_state=independently_reproduced does NOT imply epistemic_state=confirmed. This invariant cannot be enforced as a constraint; it is documented here to prevent validator consumers from inferring the implication. No if/then is generated.",
+          "description": "I-007: independently_reproduced does not determine epistemic_state. epistemic_state=confirmed additionally requires satisfaction of confirmation_criteria."
+        },
+        {
+          "$comment": "I-008: audit_disposition=needs_validation requires blockers (non-empty) and validation_plan",
+          "if": {
+            "properties": { "audit_disposition": { "const": "needs_validation" } },
+            "required": ["audit_disposition"]
+          },
+          "then": {
+            "required": ["blockers", "validation_plan"],
+            "properties": {
+              "blockers": { "minItems": 1 }
+            }
+          }
+        },
+        {
+          "$comment": "I-009: audit_disposition=confirmed requires conditions (non-empty)",
+          "if": {
+            "properties": { "audit_disposition": { "const": "confirmed" } },
+            "required": ["audit_disposition"]
+          },
+          "then": {
+            "required": ["conditions"],
+            "properties": {
+              "conditions": { "minItems": 1 }
+            }
+          }
+        },
+        {
+          "$comment": "Structural: epistemic_state=refuted requires refutation record",
+          "if": {
+            "properties": { "epistemic_state": { "const": "refuted" } },
+            "required": ["epistemic_state"]
+          },
+          "then": {
+            "required": ["refutation"]
+          }
+        }
+      ],
+
+      "additionalProperties": false
+    },
+
+    "epistemic_state": {
+      "type": "string",
+      "enum": ["observed", "candidate", "probable", "confirmed", "refuted"],
+      "description": "Position in the VTR Evidence Helix. E0=observed, E1=candidate, E2=probable, E3=confirmed. refuted is a falsification branch, not a Helix level."
+    },
+
+    "validation_state": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "blocked",
+        "validated",
+        "independently_reproduced",
+        "falsified"
+      ],
+      "description": "Records the outcome of validation activity. Orthogonal to epistemic_state. independently_reproduced records a validation result including independent reproduction under specified conditions; it does not determine epistemic_state."
+    },
+
+    "audit_disposition": {
+      "type": "string",
+      "enum": ["open", "needs_validation", "confirmed", "rejected"],
+      "description": "Workflow disposition of the finding. Distinct from epistemic_state. confirmed requires I-001 through I-003 and I-009. rejected requires I-004."
+    },
+
+    "evidence_item": {
+      "type": "object",
+      "required": ["id", "type", "artifact", "description"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^EV-[0-9]{3,}$",
+          "description": "Stable evidence identifier within this finding. Format: EV-NNN."
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "packet_capture",
+            "protocol_trace",
+            "engineering_station_log",
+            "controller_configuration",
+            "plc_program",
+            "ladder_logic",
+            "function_block",
+            "structured_text",
+            "firmware_reference",
+            "configuration_snapshot",
+            "device_log",
+            "historian_record",
+            "physical_observation",
+            "test_record",
+            "source_code",
+            "binary_analysis",
+            "documentation",
+            "other"
+          ],
+          "description": "OT/ICS evidence type taxonomy from VTR-FINDINGS-001 §7."
+        },
+        "type_description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Required when type=other."
+        },
+        "artifact": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Artifact name, file, or reference identifier."
+        },
+        "location": {
+          "type": "string",
+          "description": "Type-specific locator. Examples: frame number for packet_capture, register address for controller_configuration, line number for source_code. Not required for physical_observation."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What this evidence item demonstrates."
+        }
+      },
+      "if": {
+        "properties": { "type": { "const": "other" } },
+        "required": ["type"]
+      },
+      "then": {
+        "required": ["type_description"]
+      },
+      "additionalProperties": false
+    },
+
+    "trace_step": {
+      "type": "object",
+      "required": ["kind", "identifier", "description"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "asset",
+            "interface",
+            "protocol",
+            "function",
+            "state_transition",
+            "boundary",
+            "observed_effect"
+          ],
+          "description": "Step kind in the OT/ICS topology trace model: asset → interface → protocol → function → state_transition → boundary → observed_effect."
+        },
+        "identifier": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable identifier for the component or concept at this step."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What occurs at this step."
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^EV-[0-9]{3,}$"
+          },
+          "description": "Evidence item IDs supporting this trace step."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "condition": {
+      "type": "object",
+      "required": ["kind", "description"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "platform",
+            "software_version",
+            "firmware_version",
+            "configuration",
+            "network_topology",
+            "protocol_parameters",
+            "device_state",
+            "precondition",
+            "test_constraint"
+          ],
+          "description": "Condition kind from VTR-FINDINGS-001 §9."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Specific condition value or description."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "confirmation_basis": {
+      "type": "object",
+      "required": ["method", "criteria_satisfied", "evidence"],
+      "description": "Mandatory record of how E3 was satisfied. Not an escape hatch; a formal trace of confirmation.",
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "independent_reproduction",
+            "controlled_experiment",
+            "operational_observation",
+            "deterministic_static_verification",
+            "formal_verification",
+            "cross_implementation_validation",
+            "other"
+          ],
+          "description": "How confirmation evidence was obtained. Method alone does not determine sufficiency for E3; confirmation_criteria determine that."
+        },
+        "method_justification": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Required when method=other."
+        },
+        "criteria_satisfied": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Which confirmation_criteria identifiers or statements were satisfied."
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^EV-[0-9]{3,}$"
+          },
+          "description": "Evidence item IDs supporting this confirmation."
+        },
+        "limitations": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Explicit scope limitations of this confirmation."
+        },
+        "independent_reproduction": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["performed", "not_performed"]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Required when status=not_performed."
+            }
+          },
+          "if": {
+            "properties": { "status": { "const": "not_performed" } },
+            "required": ["status"]
+          },
+          "then": { "required": ["reason"] },
+          "additionalProperties": false
+        }
+      },
+      "if": {
+        "properties": { "method": { "const": "other" } },
+        "required": ["method"]
+      },
+      "then": { "required": ["method_justification"] },
+      "additionalProperties": false
+    },
+
+    "validation_plan": {
+      "type": "object",
+      "required": ["environment", "stimulus", "observation", "required_artifact"],
+      "description": "Plan for resolving a needs_validation blocker.",
+      "properties": {
+        "environment": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Test environment required for validation."
+        },
+        "stimulus": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Action or input to apply."
+        },
+        "observation": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Observable result that would resolve the blocker."
+        },
+        "required_artifact": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Artifact that must be produced to close the blocker."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "refutation": {
+      "type": "object",
+      "required": ["criterion", "evidence", "observed_result", "reason"],
+      "description": "Mandatory record when epistemic_state=refuted. Preserves falsification evidence.",
+      "properties": {
+        "criterion": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Which falsification_criterion was triggered."
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^EV-[0-9]{3,}$"
+          },
+          "description": "Evidence item IDs supporting refutation. References items declared in the finding's evidence array. REF-* identifiers are not defined in v0.1.0."
+        },
+        "observed_result": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What was actually observed."
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Why this observation refutes the claim."
+        }
+      },
+      "additionalProperties": false
+    }
+
+  }
+}

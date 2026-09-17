@@ -1,0 +1,67 @@
+[
+  {
+    "id": "VTR-FINDINGS-001",
+    "claim": "bpf_movein() in sys/net/bpf.c lacks an explicit assertion on hlen before bcopy to sockp->sa_data, leaving the BPF/ifnet contract implicit rather than machine-checkable.",
+    "epistemic_state": "refuted",
+    "validation_state": "falsified",
+    "audit_disposition": "rejected",
+    "confirmation_criteria": [
+      "MPASS(hlen <= sizeof(sockp->sa_data)) merged into FreeBSD src and present in a release",
+      "Assertion verifiable in FreeBSD src commit history"
+    ],
+    "falsification_criteria": [
+      "Original attribution was falsified by independent review showing reproducer violated DLT_NULL contract",
+      "Corrected reproducer injects packet successfully on lo0"
+    ],
+    "evidence": [
+      {
+        "id": "EV-001",
+        "type": "source_code",
+        "artifact": "sys/net/bpf.c bpf_movein() FreeBSD 14.5",
+        "description": "Source showing hlen used in bcopy without explicit bounds assertion"
+      },
+      {
+        "id": "EV-002",
+        "type": "test_record",
+        "artifact": "repro-bpf-sa-len.c E_origin",
+        "description": "Original reproducer without DLT_NULL header returned EAFNOSUPPORT"
+      },
+      {
+        "id": "EV-003",
+        "type": "test_record",
+        "artifact": "repro-bpf-sa-len-corrected.c E_validation",
+        "description": "Corrected reproducer with AF_INET in host byte order wrote 24 bytes successfully"
+      }
+    ],
+    "trace": [
+      {
+        "identifier": "T-001",
+        "kind": "interface",
+        "description": "BPF write(2) interface on lo0 \u2014 DLT_NULL type"
+      },
+      {
+        "identifier": "T-002",
+        "kind": "observed_effect",
+        "description": "write(2) returned EAFNOSUPPORT on FreeBSD 14.4-RELEASE-p8"
+      },
+      {
+        "identifier": "T-003",
+        "kind": "boundary",
+        "description": "BPF/ifnet contract boundary \u2014 hlen consumed without explicit assertion"
+      },
+      {
+        "identifier": "T-004",
+        "kind": "state_transition",
+        "description": "Attribution falsified \u2014 reproducer corrected \u2014 validation confirmed on FreeBSD 14.5-RELEASE"
+      }
+    ],
+    "refutation": {
+      "criterion": "Reproducer must satisfy DLT_NULL contract \u2014 32-bit AF header required",
+      "evidence": [
+        "EV-002"
+      ],
+      "observed_result": "Original reproducer violated DLT_NULL contract \u2014 EAFNOSUPPORT was reproducer error, not kernel bug",
+      "reason": "Independent review by glebius (FreeBSD committer) established that pkt[] was missing the required 32-bit address-family header for DLT_NULL. Corrected reproducer confirmed by local verification on FreeBSD 14.5-RELEASE."
+    }
+  }
+]

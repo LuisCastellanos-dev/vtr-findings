@@ -1,0 +1,4 @@
+[FAIL] /home/luiswizard/vtr-findings/adversarial/cases/I-001-violation.json: 1 error(s)
+       - /0/epistemic_state: "confirmed" was expected
+
+Validation failed.

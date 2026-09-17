@@ -1,0 +1,44 @@
+[
+  {
+    "id": "VTR-ADVT-001",
+    "claim": "Base valid finding — mutation: epistemic_state=candidate with audit_disposition=confirmed.",
+    "epistemic_state": "candidate",
+    "validation_state": "validated",
+    "audit_disposition": "confirmed",
+    "confirmation_criteria": [
+      "The observed condition is reproducible under the specified platform constraints."
+    ],
+    "falsification_criteria": [
+      "The observed condition cannot be reproduced under the specified platform constraints."
+    ],
+    "evidence": [
+      {
+        "id": "EV-001",
+        "type": "test_record",
+        "artifact": "I-001-violation-repro.txt",
+        "description": "Controlled reproduction of the observed condition."
+      }
+    ],
+    "trace": [
+      {
+        "identifier": "T-001",
+        "kind": "observed_effect",
+        "description": "Observed condition recorded under controlled conditions.",
+        "evidence": ["EV-001"]
+      }
+    ],
+    "conditions": [
+      {
+        "kind": "platform",
+        "description": "Synthetic controlled test environment."
+      }
+    ],
+    "confirmation_basis": {
+      "method": "controlled_experiment",
+      "criteria_satisfied": [
+        "The observed condition is reproducible under the specified platform constraints."
+      ],
+      "evidence": ["EV-001"]
+    }
+  }
+]

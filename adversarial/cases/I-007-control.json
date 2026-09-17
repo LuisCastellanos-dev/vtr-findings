@@ -1,0 +1,31 @@
+[
+  {
+    "id": "VTR-ADVT-007",
+    "claim": "Independent reproduction exists — epistemic_state remains candidate. Non-implication control: independently_reproduced does not force confirmed.",
+    "epistemic_state": "candidate",
+    "validation_state": "independently_reproduced",
+    "audit_disposition": "open",
+    "confirmation_criteria": [
+      "Additional evidence establishes the complete claim under the specified conditions."
+    ],
+    "falsification_criteria": [
+      "The independently reproduced phenomenon cannot be reproduced under the specified conditions."
+    ],
+    "evidence": [
+      {
+        "id": "EV-001",
+        "type": "test_record",
+        "artifact": "I-007-control-repro.txt",
+        "description": "Independent reproduction of the bounded phenomenon."
+      }
+    ],
+    "trace": [
+      {
+        "identifier": "T-001",
+        "kind": "observed_effect",
+        "description": "Bounded reproduced observation recorded independently.",
+        "evidence": ["EV-001"]
+      }
+    ]
+  }
+]

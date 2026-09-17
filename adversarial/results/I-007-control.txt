@@ -1,0 +1,3 @@
+[OK]   /home/luiswizard/vtr-findings/adversarial/cases/I-007-control.json
+
+All findings valid.

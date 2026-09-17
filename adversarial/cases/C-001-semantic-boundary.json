@@ -1,0 +1,49 @@
+[
+  {
+    "id": "VTR-ADVT-101",
+    "claim": "The device is vulnerable.",
+    "epistemic_state": "confirmed",
+    "validation_state": "validated",
+    "audit_disposition": "confirmed",
+    "confirmation_criteria": [
+      "The device is vulnerable."
+    ],
+    "falsification_criteria": [
+      "The device is not vulnerable."
+    ],
+    "evidence": [
+      {
+        "id": "EV-001",
+        "type": "documentation",
+        "artifact": "vendor-advisory.pdf",
+        "description": "Vendor documentation states the device uses an unpatched component."
+      }
+    ],
+    "trace": [
+      {
+        "identifier": "T-001",
+        "kind": "interface",
+        "description": "Vendor documentation interface \u2014 no independent reproduction.",
+        "evidence": [
+          "EV-001"
+        ]
+      }
+    ],
+    "conditions": [
+      {
+        "kind": "platform",
+        "description": "Vendor-specified affected device model."
+      }
+    ],
+    "confirmation_basis": {
+      "method": "other",
+      "criteria_satisfied": [
+        "The device is vulnerable."
+      ],
+      "evidence": [
+        "EV-001"
+      ],
+      "method_justification": "Documentation review only; no independent reproduction was performed. Case tests structural validity without factual confirmation."
+    }
+  }
+]

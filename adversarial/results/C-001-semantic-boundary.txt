@@ -1,0 +1,3 @@
+[OK]   /home/luiswizard/vtr-findings/adversarial/cases/C-001-semantic-boundary.json
+
+All findings valid.

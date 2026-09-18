@@ -205,3 +205,14 @@ MIT License — see LICENSE file.
 ---
 
 *VTR-FINDINGS-001 v0.1.0 — Vector Telemetry Research — 2026-09-17*
+
+---
+
+## Related Research
+
+- **VTR Architecture — State and Traceability Analysis (2026-09-17)**  
+  Informational context document describing the emerging traceability
+  relationship between VTR-METH-001, VTR-RES-004, and VTR-FINDINGS-001,
+  including the provenance chain from specification through implementation,
+  adversarial execution, versioned artifact, and archival record.  
+  See: [vtr-research-future/VTR-ARCHITECTURE-2026-09-17.md](https://github.com/LuisCastellanos-dev/vtr-research-future/blob/main/VTR-ARCHITECTURE-2026-09-17.md)

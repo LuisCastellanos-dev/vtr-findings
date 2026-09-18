@@ -1,0 +1,44 @@
+[
+  {
+    "id": "VTR-ADVT-003",
+    "claim": "Phase B positive control — all trace evidence references exist in evidence[].",
+    "epistemic_state": "confirmed",
+    "validation_state": "validated",
+    "audit_disposition": "confirmed",
+    "confirmation_criteria": [
+      "The observed condition is reproducible under the specified platform constraints."
+    ],
+    "falsification_criteria": [
+      "The observed condition cannot be reproduced under the specified platform constraints."
+    ],
+    "evidence": [
+      {
+        "id": "EV-001",
+        "type": "test_record",
+        "artifact": "B-002-repro.txt",
+        "description": "Controlled reproduction of the observed condition."
+      }
+    ],
+    "trace": [
+      {
+        "identifier": "T-001",
+        "kind": "observed_effect",
+        "description": "Trace step references existing evidence — relational integrity satisfied.",
+        "evidence": ["EV-001"]
+      }
+    ],
+    "conditions": [
+      {
+        "kind": "platform",
+        "description": "Synthetic controlled test environment."
+      }
+    ],
+    "confirmation_basis": {
+      "method": "controlled_experiment",
+      "criteria_satisfied": [
+        "The observed condition is reproducible under the specified platform constraints."
+      ],
+      "evidence": ["EV-001"]
+    }
+  }
+]

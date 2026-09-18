@@ -200,7 +200,7 @@ DOI: pending Zenodo deposit
 
 ## License
 
-To be determined prior to Zenodo deposit.
+MIT License — see LICENSE file.
 
 ---
 

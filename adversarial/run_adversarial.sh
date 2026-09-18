@@ -5,7 +5,7 @@
 # Usage: ./run_adversarial.sh [--phase A|B|C|all]
 set -euo pipefail
 
-EXPECTED_COMMIT="4ab4e53"
+EXPECTED_COMMIT="826b119"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SCHEMA="$ROOT/schema/vtr-findings.schema.json"
 VALIDATOR="$ROOT/validator/target/debug/vtr_findings_validator"
@@ -57,8 +57,7 @@ preflight() {
 }
 
 # ── Phase filter ───────────────────────────────────────────────────────────────
-# Phase B cases (B-*.json) are NOT_EXECUTABLE at 4ab4e53.
-# The harness skips them and records OUT_OF_SCOPE, not a validator result.
+# Phase B cases (B-*.json) are executable at 826b119 — relational validator implemented.
 phase_of() {
     local name="$1"
     if [[ "$name" == B-* ]]; then echo "B"
@@ -100,17 +99,7 @@ run_cases() {
         echo "CASE:  $name"
         echo "PHASE: $phase"
 
-        # Phase B: not executable at this commit
-        if [[ "$phase" == "B" ]]; then
-            echo "Observed behavior: NOT_EXECUTABLE"
-            echo "Classification:    OUT_OF_SCOPE"
-            echo "Note: Phase B relational validator not implemented at $EXPECTED_COMMIT" \
-                | tee "$output"
-            skipped=$((skipped + 1))
-            total=$((total + 1))
-            echo
-            continue
-        fi
+        # Phase B: now executable — relational validator implemented
 
         # Phase A and C: execute against validator
         if "$VALIDATOR" "$SCHEMA" "$case_file" >"$output" 2>&1; then
@@ -132,7 +121,7 @@ run_cases() {
     echo "Total:        $total"
     echo "Accepted:     $accepted"
     echo "Rejected:     $rejected"
-    echo "Not executed: $skipped  (Phase B — OUT_OF_SCOPE at $EXPECTED_COMMIT)"
+    echo "Not executed: $skipped"
     echo
     echo "Raw validator output: $RESULTS_DIR/"
     echo

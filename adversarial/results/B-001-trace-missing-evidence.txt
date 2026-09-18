@@ -1,1 +1,4 @@
-Note: Phase B relational validator not implemented at 4ab4e53
+[FAIL] /home/luiswizard/vtr-findings/adversarial/cases/B-001-trace-missing-evidence.json: 1 relational error(s)
+       - /trace/0/evidence/0: "EV-999" not found in evidence[].id
+
+Validation failed.

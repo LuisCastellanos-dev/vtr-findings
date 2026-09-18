@@ -1,19 +1,19 @@
 {
   "contract": "VTR-FINDINGS-001",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "record_type": "adversarial_execution_record",
-  "note": "Execution record at commit 4ab4e53. Documents observed validator behavior against adversarial cases. Does not constitute confirmation of VTR-FINDINGS-001.",
+  "note": "Execution record at commit 826b119. Supersedes 0.1.0 (4ab4e53). Phase B now executable — relational validator implemented. Does not constitute confirmation of VTR-FINDINGS-001.",
   "harness": {
-    "commit": "4ab4e53",
+    "commit": "826b119",
     "phase": "all",
     "schema": "schema/vtr-findings.schema.json",
     "validator": "validator/target/debug/vtr_findings_validator"
   },
   "execution": {
-    "total": 5,
-    "accepted": 3,
-    "rejected": 1,
-    "not_executed": 1
+    "total": 6,
+    "accepted": 4,
+    "rejected": 2,
+    "not_executed": 0
   },
   "cases": [
     {
@@ -42,10 +42,18 @@
     {
       "case": "B-001-trace-missing-evidence",
       "phase": "B",
-      "expected": "NOT_EXECUTABLE",
-      "observed": "NOT_EXECUTABLE",
-      "classification": "OUT_OF_SCOPE",
-      "reason": "Phase B relational validator not implemented at 4ab4e53"
+      "expected": "REJECT",
+      "observed": "REJECT",
+      "classification": "EXPECTED_REJECTION",
+      "validator_reason": "/trace/0/evidence/0: \"EV-999\" not found in evidence[].id"
+    },
+    {
+      "case": "B-002-trace-valid-evidence",
+      "phase": "B",
+      "expected": "ACCEPT",
+      "observed": "ACCEPT",
+      "classification": "EXPECTED_ACCEPTANCE",
+      "note": "Positive control — no false positives on valid trace references."
     },
     {
       "case": "C-001-semantic-boundary",
@@ -58,8 +66,16 @@
   ],
   "findings": [
     "Phase A 3/3: validator enforces I-001 and preserves I-007 non-implication.",
+    "Phase B 2/2: relational validator detects broken trace→evidence references (B-001) without false positives (B-002).",
     "Family C 1/1: structural validity does not imply factual confirmation.",
-    "Phase B 0/1 executed: relational validator absent at 4ab4e53 — gap documented, not a contract failure.",
-    "Pre-execution fixture errors (ID regex, documentation_review method) resolved before final execution. Raw outputs preserved in adversarial/results/."
+    "Pre-execution fixture errors (ID regex, documentation_review method) resolved before final execution. Raw outputs preserved in adversarial/results/.",
+    "Phase B OUT_OF_SCOPE at 4ab4e53 — documented in execution record v0.1.0."
+  ],
+  "history": [
+    {
+      "version": "0.1.0",
+      "commit": "4ab4e53",
+      "summary": "Phase A 3/3, Family C 1/1, Phase B OUT_OF_SCOPE — relational validator not implemented."
+    }
   ]
 }

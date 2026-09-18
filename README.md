@@ -194,7 +194,7 @@ Phase B relational validators not yet implemented:
 
 ## Citation
 
-DOI: pending Zenodo deposit
+DOI: [10.5281/zenodo.22821614](https://doi.org/10.5281/zenodo.22821614)
 
 ---
 
